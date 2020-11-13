@@ -27,15 +27,15 @@ extension Unit: Equatable {
 }
 
 class Mage: Unit {
-    let intelegince: Int
+    let intelligence: Int
     
-    init(intelegince: Int, name: String, damage: Int, agility: Int, defence: Int, health: Int) {
-        self.intelegince = intelegince
+    init(intelligence: Int, name: String, damage: Int, agility: Int, defence: Int, health: Int) {
+        self.intelligence = intelligence
         super.init(name: name, damage: damage, agility: agility, defence: defence, health: health)
     }
     
     override func attack(on unit: Unit) {
-        unit.health = unit.health * unit.defence - self.intelegince * self.agility * self.damage
+        unit.health = unit.health * unit.defence - self.intelligence * self.agility * self.damage
     }
 }
 
@@ -76,7 +76,7 @@ class UnitFactory {
             let possibleAgility = [3, 4, 5, 6, 7]
             let possibleIntelegince = [500, 600, 700, 800, 900]
             
-            return Mage(intelegince: possibleIntelegince.randomElement() ?? 700, name: possibleNames.randomElement() ?? "Mob", damage: possibleDamage.randomElement() ?? 70, agility: possibleAgility.randomElement() ?? 5, defence: possibleDefence.randomElement() ?? 7, health: possibleHealth.randomElement() ?? 5000)
+            return Mage(intelligence: possibleIntelegince.randomElement() ?? 700, name: possibleNames.randomElement() ?? "Mob", damage: possibleDamage.randomElement() ?? 70, agility: possibleAgility.randomElement() ?? 5, defence: possibleDefence.randomElement() ?? 7, health: possibleHealth.randomElement() ?? 5000)
             
         case 2:
             let possibleNames = ["Altair", "Riki", "Ezio Auditore", "Prince of Persia", "Darth Maul"]
@@ -108,6 +108,7 @@ enum Errors: Error {
     case createUnitError(String)
     case deleteUnitError(String)
     case endOfGameError(String)
+    case noWinnerError(String)
 }
 
 class Battlefield {
@@ -124,14 +125,10 @@ class Battlefield {
        
         print(units)
         while units.count != 1 {
-            guard let attacker = units.randomElement() else {
+            guard let attacker = units.randomElement(), let defender = units.randomElement() else {
                 throw Errors.createUnitError("Instead of unit returned nil")
             }
             
-            guard let defender = units.randomElement() else {
-                throw Errors.createUnitError("Instead of unit returned nil")
-            }
-        
             if attacker == defender {continue}
             
             print(attacker.name ," бьет по ", defender.name)
@@ -147,7 +144,7 @@ class Battlefield {
             }
         }
         if units.count == 1 {
-            return units[0]
+            return units.first
         } else {
             throw Errors.endOfGameError("Problem with ending the game")
         }
@@ -159,7 +156,7 @@ let battlefield = Battlefield()
 let winner = try battlefield.beginBattle(amountOfUnits: amountOfUnits)
 
 guard let winner = try battlefield.beginBattle(amountOfUnits: amountOfUnits) else {
-    throw Errors.createUnitError("Instead of unit returned nil")
+    throw Errors.noWinnerError("Problem with winner in the end of battle")
 }
 
 print(winner.name, "ПОБЕДИТЕЛЬ!")
